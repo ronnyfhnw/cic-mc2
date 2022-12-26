@@ -12,7 +12,6 @@ import numpy as np
 import io
 
 # load env
-with open('secrets.env', 'r') as f:
+with open('secrets.json', 'r') as f:
     secrets = json.load(f)
 
-print(secrets)

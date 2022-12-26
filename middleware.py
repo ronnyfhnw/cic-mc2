@@ -15,3 +15,12 @@ import io
 with open('secrets.json', 'r') as f:
     secrets = json.load(f)
 
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+# start application
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5500, debug=True)

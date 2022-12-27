@@ -4,6 +4,10 @@ FROM mcr.microsoft.com/azureml/o16n-base/python-assets:20210623.40134510 AS infe
 
 FROM ubuntu:18.04
 
+WORKDIR albert-environment
+
+COPY requirements.txt .
+
 USER root:root
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -102,7 +106,4 @@ RUN apt-get update && \
     apt-get update && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql17 
 
-WORKDIR /Users/ronnyschneeberger/Documents/FHNW/HS22/cic-mc2
-
-# install python packages from requirements
 RUN pip install -r requirements.txt

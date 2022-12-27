@@ -74,4 +74,4 @@ def run(input:str) -> torch.Tensor:
     
 
 
-    return embedding
+    return [1,2,3]

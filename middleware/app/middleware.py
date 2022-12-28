@@ -12,7 +12,7 @@ from RecommenderSystem import *
 from sklearn.metrics.pairwise import pairwise_distances
 import torch
 
-getEmbeddingUrl = "http://127.0.0.1:5500/getEmbedding"
+getEmbeddingUrl = "http://azure-containerized-albert.azurewebsites.net/getEmbedding"
 
 # start app
 app = Flask(__name__)

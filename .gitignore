@@ -1,3 +1,4 @@
-
+*.dylib
+*.pt
 secrets.env
 secrets.json

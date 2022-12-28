@@ -12,20 +12,16 @@ from RecommenderSystem import *
 from sklearn.metrics.pairwise import pairwise_distances
 import torch
 
-getEmbeddingUrl = "http://azure-containerized-albert.azurewebsites.net/getEmbedding"
+getEmbeddingUrl = "https://azure-containerized-albert.azurewebsites.net/getEmbedding"
 
 # start app
 app = Flask(__name__)
 
 # load data for recommender
 descriptions = np.array(torch.load("data/avgpooled_albert_sentence_embeddings_float32.pt", map_location=torch.device("cpu")))
-print(descriptions[:2,:2])
 description_matrix = np.array(torch.load("data/pca_albert_description.pt", map_location=torch.device("cpu")))
-print(description_matrix[:2,:2])
 title_matrix = np.array(torch.load("data/pca_albert_title.pt", map_location=torch.device("cpu")))
-print(title_matrix[:2,:2])
 cast_matrix = np.array(torch.load("data/pca_albert_cast.pt", map_location=torch.device("cpu")))
-print(cast_matrix[:2,:2])
 df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
 
 # filter matrices
@@ -63,8 +59,8 @@ def getRecommendationByText():
     assert type(text) == str
     
     # make request to azure albert
-    response = requests.post(getEmbeddingUrl, json={'text':text})
-    data = response.json()
+    r = requests.post(getEmbeddingUrl, json={'text':text})
+    data = r.json()
 
     # transform response
     embedding_flattened, shape = data['embedding'], data['shape']

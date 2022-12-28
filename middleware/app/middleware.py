@@ -18,10 +18,14 @@ getEmbeddingUrl = "http://127.0.0.1:5500/getEmbedding"
 app = Flask(__name__)
 
 # load data for recommender
-descriptions = torch.load("data/avgpooled_albert_sentence_embeddings_float32.pt", map_location=torch.device("cpu")).detach().numpy()
+descriptions = np.array(torch.load("data/avgpooled_albert_sentence_embeddings_float32.pt", map_location=torch.device("cpu")))
+print(descriptions[:2,:2])
 description_matrix = np.array(torch.load("data/pca_albert_description.pt", map_location=torch.device("cpu")))
+print(description_matrix[:2,:2])
 title_matrix = np.array(torch.load("data/pca_albert_title.pt", map_location=torch.device("cpu")))
+print(title_matrix[:2,:2])
 cast_matrix = np.array(torch.load("data/pca_albert_cast.pt", map_location=torch.device("cpu")))
+print(cast_matrix[:2,:2])
 df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
 
 # filter matrices
@@ -29,8 +33,6 @@ description_matrix = description_matrix[list(df.index),:]
 descriptions = descriptions[list(df.index),:]
 title_matrix = title_matrix[list(df.index),:]
 cast_matrix = cast_matrix[list(df.index),:]
-
-print(descriptions)
 
 # build recommender system
 movie_info = ContentBasedRecommender.build_movie_info_matrix(df)
@@ -67,14 +69,11 @@ def getRecommendationByText():
     # transform response
     embedding_flattened, shape = data['embedding'], data['shape']
     embedding = torch.tensor(embedding_flattened).reshape(shape)
-
-    print(embedding.shape, descriptions.shape)
     
     # calculate cosine similarity between descriptions
-    distances = pairwise_distances(descriptions, embedding.reshape(768), metric='cosine')
+    distances = pairwise_distances(descriptions, embedding.reshape(1,768), metric='cosine')
     indices = np.argsort(distances, axis=0).tolist()
     indices = indices[:10]
-    print(indices)
     
     # get recommendations
     recommendations = pd.DataFrame(columns=df.columns)
@@ -107,6 +106,26 @@ def getRecommendationsByIds():
     # prepare paths, title and description
     response = df[df.movieId.isin(recommendation_movieIds)][['title', 'description', 'poster_path']]
     response = response.to_json(orient="index")
+
+    return response
+
+@app.route("/getRandomMovies", methods=['GET'])
+def getRandomMovies():
+    movie_ids = [
+        201773, # spider man far from home
+        102125, # Iron Man 3
+        81834, # harry potter
+        111921, # the fault in our stars
+        125916, # fifty shades of grey
+        136020, # spectre
+        160438, # jason borne
+        111360, # lucy
+        197179, # chaos walking
+        175303 # it
+        ]
+
+    random_recommendations = df[df.movieId.isin(movie_ids)][['title', 'description', 'poster_path']]
+    response = random_recommendations.to_json(orient="index")
 
     return response
 

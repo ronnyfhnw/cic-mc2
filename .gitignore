@@ -28,5 +28,3 @@ Vagrantfile
 cic-watcher/.DS_Store
 .DS_Store
 cic-watcher/config.json
-middleware/venv/*
-azure-containerized-albert/venv/*

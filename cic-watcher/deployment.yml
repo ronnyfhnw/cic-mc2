@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cic-watcher
+spec:
+  selector:
+    matchLabels:
+      app: cic-watcher
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cic-watcher
+    spec:
+      containers:
+        - name: cic-watcher
+          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/cic-watcher:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              port: 5000
+              path: /
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              port: 5000
+              path: /
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

@@ -9,6 +9,8 @@ RUN pip install requests
 
 ADD ./app ./app
 
+EXPOSE 5501
+
 WORKDIR ./app
 
 CMD ["python", "middleware.py"]

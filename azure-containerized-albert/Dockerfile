@@ -10,4 +10,6 @@ ADD ./app ./app
 
 WORKDIR ./app
 
+EXPOSE 5500
+
 CMD ["python", "main.py"]

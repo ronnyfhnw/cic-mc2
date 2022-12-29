@@ -45,9 +45,9 @@ def preprocess(text:str):
 app = Flask(__name__)
 init()
 
-@app.route('/')
-def index():
-    pass
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>Albert works fine</h1>'''
 
 @app.route('/getEmbedding', methods=['POST'])
 def getEmbedding():
@@ -105,4 +105,4 @@ def getEmbedding():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5500, debug=True)
+    app.run(host='0.0.0.0', port=5500)

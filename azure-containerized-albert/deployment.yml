@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-containerized-albert
+spec:
+  selector:
+    matchLabels:
+      app: azure-containerized-albert
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: azure-containerized-albert
+    spec:
+      containers:
+        - name: azure-containerized-albert
+          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/azure-containerized-albert:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              port: 5500
+              path: /
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 20
+          livenessProbe:
+            httpGet:
+              port: 5500
+              path: /
+            initialDelaySeconds: 10
+            timeoutSeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "100m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"

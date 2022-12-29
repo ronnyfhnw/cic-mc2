@@ -82,6 +82,9 @@ def check_balance():
         return False
 
 ##################################################################################################################################################
+@app.route('/')
+def index():
+    return '''<h1>Middleware works fine</h1>'''
 
 @app.route("/getRecommendationsByIds", methods=['POST'])
 def getRecommendationsByIds():
@@ -209,4 +212,4 @@ def testSpeech2Text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5501, debug=True)
+    app.run(host='0.0.0.0', port=5501)

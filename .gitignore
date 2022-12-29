@@ -2,7 +2,6 @@
 *.pt
 secrets.env
 secrets.json
-<<<<<<< HEAD
 .vagrant*
 bin
 docker/docker
@@ -26,11 +25,8 @@ vendor/pkg/
 pyenv
 Vagrantfile
 *.wav
-=======
 cic-watcher/.DS_Store
 .DS_Store
 cic-watcher/config.json
->>>>>>> 7c5d236bff4072c2b3186b4bfebbea4f4a802ac3
-venv/
-*venv
-*/venv/*
+middleware/venv/*
+azure-containerized-albert/venv/*

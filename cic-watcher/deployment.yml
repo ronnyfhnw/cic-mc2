@@ -21,12 +21,14 @@ spec:
               port: 5000
               path: /
             initialDelaySeconds: 5
+            timeoutSeconds: 10
             periodSeconds: 10
           livenessProbe:
             httpGet:
               port: 5000
               path: /
             initialDelaySeconds: 5
+            timeoutSeconds: 10
             periodSeconds: 10
           resources:
             requests:

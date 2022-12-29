@@ -14,6 +14,6 @@ RUN conda env create -f environment.yml
 RUN echo "source activate cic-watcher" > ~/.bashrc
 ENV PATH /opt/conda/envs/cic-watcher/bin:$PATH
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["./boot.sh"]

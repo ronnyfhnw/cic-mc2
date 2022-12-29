@@ -5,7 +5,10 @@ WORKDIR /middleware-app
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
+RUN pip install requests
 
-COPY ./app ./app
+ADD ./app ./app
 
-CMD ["python", "./app/middleware.py"]
+WORKDIR ./app
+
+CMD ["python", "middleware.py"]

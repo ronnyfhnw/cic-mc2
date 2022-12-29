@@ -128,3 +128,22 @@ def getRandomMovies():
 # start application
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5501, debug=True)
+
+
+# call the watcher to check the balance allowance
+
+# watcher_auth_token = "asdaklsödfjaskldfjalsöiodjfhapöioudjs"
+
+# watcher_url = "http://localhost:60000/api/v1/check-balance-allowance"
+
+# response = requests.get(watcher_url, headers={
+
+#                         'auth_token': watcher_auth_token})
+
+
+
+# # return error if content does not contain true
+
+# if "true" not in response.content:
+
+#     return "Error: Balance allowance is not sufficient."

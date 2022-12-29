@@ -19,8 +19,8 @@ def init():
     This function initialises the albert tokenizer and model.
     '''
     global albert, tokenizer
-    albert = AlbertModel.from_pretrained('albert-base-v2', output_hidden_states=True)
-    tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
+    albert = AlbertModel.from_pretrained('albert_model', output_hidden_states=True)
+    tokenizer = AlbertTokenizer.from_pretrained('albert_tokenizer')
     albert.eval()
 
 def preprocess(text:str):

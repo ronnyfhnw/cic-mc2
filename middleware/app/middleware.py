@@ -111,7 +111,19 @@ def getRecommendationsByIds():
     recommendation_titles, recommendation_movieIds = RS.get_recommendations_for_user(ratings_user=ratings, n_rec=20)
 
     # prepare paths, title and description
-    response = df[df.movieId.isin(recommendation_movieIds)][['title', 'description', 'poster_path']]
+    response = df[df.movieId.isin(recommendation_movieIds)]
+
+    # turn dummy encoding back
+    genres = []
+
+    for i in range(response.shape[0]):
+        df_tmp = response.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        genres.append(list(df_tmp[df_tmp == 1].index))
+
+    response['genres'] = pd.Series(genres)
+
+    # filter columns
+    response = response[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
     response = response.to_json(orient="index")
 
     return response
@@ -141,7 +153,19 @@ def getRandomMovies():
         175303 # it
         ]
 
-    random_recommendations = df[df.movieId.isin(movie_ids)][['title', 'description', 'poster_path']]
+    random_recommendations = df[df.movieId.isin(movie_ids)]
+
+    # turn dummy encoding back
+    genres = []
+
+    for i in range(random_recommendations.shape[0]):
+        df_tmp = random_recommendations.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        genres.append(list(df_tmp[df_tmp == 1].index))
+
+    random_recommendations['genres'] = pd.Series(genres)
+
+    # filter columns
+    random_recommendations = random_recommendations[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
     response = random_recommendations.to_json(orient="index")
 
     return response
@@ -187,9 +211,19 @@ def speech2text():
     for index in indices:
         recommendations = pd.concat((recommendations, df.iloc[index, :]))
 
-    # recommendations to json
-    recommendations = recommendations.reset_index()
-    recommendations = recommendations[['title']]
+    # turn dummy encoding back
+    genres = []
+
+    for i in range(recommendations.shape[0]):
+        df_tmp = recommendations.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        genres.append(list(df_tmp[df_tmp == 1].index))
+
+    genres = pd.Series(genres)
+    genres.index = recommendations.index
+    recommendations['genres'] = genres
+
+    # filter columns
+    recommendations = recommendations[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
     recommendations = recommendations.to_json(orient="index")
 
     return recommendations
@@ -212,4 +246,4 @@ def testSpeech2Text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5501)
+    app.run(host='0.0.0.0', port=5501, debug=True)

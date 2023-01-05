@@ -1,5 +1,6 @@
 *.dylib
 *.pt
+*.pkl
 secrets.env
 secrets.json
 .vagrant*

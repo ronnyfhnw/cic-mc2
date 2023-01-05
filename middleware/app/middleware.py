@@ -43,13 +43,14 @@ descriptions = np.array(torch.load("data/avgpooled_albert_sentence_embeddings_fl
 description_matrix = np.array(torch.load("data/pca_albert_description.pt", map_location=torch.device("cpu")))
 title_matrix = np.array(torch.load("data/pca_albert_title.pt", map_location=torch.device("cpu")))
 cast_matrix = np.array(torch.load("data/pca_albert_cast.pt", map_location=torch.device("cpu")))
-df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
+# df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
+df = pd.read_pickle("data/df.pkl")
 
 # filter matrices
-description_matrix = description_matrix[list(df.index),:]
-descriptions = descriptions[list(df.index),:]
-title_matrix = title_matrix[list(df.index),:]
-cast_matrix = cast_matrix[list(df.index),:]
+# description_matrix = description_matrix[list(df.index),:]
+# descriptions = descriptions[list(df.index),:]
+# title_matrix = title_matrix[list(df.index),:]
+# cast_matrix = cast_matrix[list(df.index),:]
 
 # build matrices
 movie_info = ContentBasedRecommender.build_movie_info_matrix(df)

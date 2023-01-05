@@ -1,6 +1,6 @@
 *.dylib
 *.pt
-*.pkl
+*.pkl   
 secrets.env
 secrets.json
 .vagrant*
@@ -29,3 +29,5 @@ Vagrantfile
 cic-watcher/.DS_Store
 .DS_Store
 cic-watcher/config.json
+data_tmbd_cleaned.csv
+indexes.csv

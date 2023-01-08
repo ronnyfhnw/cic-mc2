@@ -30,19 +30,25 @@ watcher_auth_token = secrets["watcher_auth_token"]
 MIDDLEWARE_KEY = secrets['MIDDLEWARE_KEY']
 
 # config speech2text
-speech_config = speechsdk.SpeechConfig(subscription=secrets["S2T_KEY"], region=secrets["S2T_REGION"])
-speech_config.speech_recognition_language="en-US"
+speech_config = speechsdk.SpeechConfig(
+    subscription=secrets["S2T_KEY"], region=secrets["S2T_REGION"])
+speech_config.speech_recognition_language = "en-US"
 
 # start app
 app = Flask(__name__)
+CORS(app)
 
 ##################################################################################################################################################
 
 # load data for recommender
-descriptions = np.array(torch.load("data/avgpooled_albert_sentence_embeddings_float32.pt", map_location=torch.device("cpu")))
-description_matrix = np.array(torch.load("data/pca_albert_description.pt", map_location=torch.device("cpu")))
-title_matrix = np.array(torch.load("data/pca_albert_title.pt", map_location=torch.device("cpu")))
-cast_matrix = np.array(torch.load("data/pca_albert_cast.pt", map_location=torch.device("cpu")))
+descriptions = np.array(torch.load(
+    "data/avgpooled_albert_sentence_embeddings_float32.pt", map_location=torch.device("cpu")))
+description_matrix = np.array(torch.load(
+    "data/pca_albert_description.pt", map_location=torch.device("cpu")))
+title_matrix = np.array(torch.load(
+    "data/pca_albert_title.pt", map_location=torch.device("cpu")))
+cast_matrix = np.array(torch.load(
+    "data/pca_albert_cast.pt", map_location=torch.device("cpu")))
 # df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
 df = pd.read_pickle("data/df.pkl")
 
@@ -58,24 +64,26 @@ mapping_matrix = ContentBasedRecommender.build_mapping_matrix(df)
 
 # build input
 matrix_dict = {
-        'movie_info_matrix': movie_info,
-        'description_matrix': description_matrix,
-        'title_matrix': title_matrix,
-        'cast_info_matrix': cast_matrix
+    'movie_info_matrix': movie_info,
+    'description_matrix': description_matrix,
+    'title_matrix': title_matrix,
+    'cast_info_matrix': cast_matrix
 }
 
 # build recommender system
 RS = ContentBasedRecommender(
-            mapping_matrix=mapping_matrix,
-            **matrix_dict,
-            scaling_kwargs=None
-        )
+    mapping_matrix=mapping_matrix,
+    **matrix_dict,
+    scaling_kwargs=None
+)
 
 # define function for checking balance
 
+
 def check_balance():
     # send request
-    response = requests.get(watcher_url, headers={'auth_token': watcher_auth_token})
+    response = requests.get(watcher_url, headers={
+                            'auth_token': watcher_auth_token})
     # parse response
     if "true" in response.text:
         return True
@@ -83,17 +91,22 @@ def check_balance():
         return False
 
 ##################################################################################################################################################
+
+
 @app.route('/')
+@cross_origin()
 def index():
     return '''<h1>Middleware works fine</h1>'''
 
+
 @app.route("/getRecommendationsByIds", methods=['POST'])
+@cross_origin()
 def getRecommendationsByIds():
-    # get data 
+    # get data
     data = request.json
 
-    if not check_balance():
-        return {"message": "Cost limit reached"}, 403
+    # if not check_balance():
+    #     return {"message": "Cost limit reached"}, 403
 
     # check key
     if data['key'] != MIDDLEWARE_KEY:
@@ -108,8 +121,9 @@ def getRecommendationsByIds():
     ratings['userId'] = 21
     ratings['rating'] = 5
 
-    # get recommendation 
-    recommendation_titles, recommendation_movieIds = RS.get_recommendations_for_user(ratings_user=ratings, n_rec=20)
+    # get recommendation
+    recommendation_titles, recommendation_movieIds = RS.get_recommendations_for_user(
+        ratings_user=ratings, n_rec=20)
 
     # prepare paths, title and description
     response = df[df.movieId.isin(recommendation_movieIds)]
@@ -118,41 +132,42 @@ def getRecommendationsByIds():
     genres = []
 
     for i in range(response.shape[0]):
-        df_tmp = response.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        df_tmp = response.iloc[i, :].T[['Adventure', 'Animation', 'Children', 'Comedy', 'Fantasy', 'Romance', 'Drama', 'Action',
+                                        'Crime', 'Thriller', 'Horror', 'Mystery', 'Sci-Fi', 'IMAX', 'Documentary', 'War', 'Musical', 'Western', 'Film-Noir']]
         genres.append(list(df_tmp[df_tmp == 1].index))
 
     response['genres'] = pd.Series(genres)
 
     # filter columns
-    response = response[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
+    response = response[['title', 'description', 'poster_path',
+                         'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
     response = response.to_json(orient="index")
-
     return response
 
-@app.route("/getRandomMovies", methods=['GET'])
-def getRandomMovies():
-    # load request data
-    data = request.json
 
-    if not check_balance():
-        return {"message": "Cost limit reached"}, 403
+@app.route("/getRandomMovies", methods=['GET'])
+@cross_origin()
+def getRandomMovies():
+
+    # if not check_balance():
+    #     return {"message": "Cost limit reached"}, 403
 
     # authentication
-    if data["key"] != MIDDLEWARE_KEY:
+    if request.args.get("key") != MIDDLEWARE_KEY:
         return {"message": "Forbidden Request"}, 403
 
     movie_ids = [
-        201773, # spider man far from home
-        102125, # Iron Man 3
-        81834, # harry potter
-        111921, # the fault in our stars
-        125916, # fifty shades of grey
-        136020, # spectre
-        160438, # jason borne
-        111360, # lucy
-        197179, # chaos walking
-        175303 # it
-        ]
+        201773,  # spider man far from home
+        102125,  #  Iron Man 3
+        81834,  #  harry potter
+        111921,  #  the fault in our stars
+        125916,  #  fifty shades of grey
+        136020,  #  spectre
+        160438,  #  jason borne
+        111360,  #  lucy
+        197179,  #  chaos walking
+        175303  #  it
+    ]
 
     random_recommendations = df[df.movieId.isin(movie_ids)]
 
@@ -160,18 +175,23 @@ def getRandomMovies():
     genres = []
 
     for i in range(random_recommendations.shape[0]):
-        df_tmp = random_recommendations.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        df_tmp = random_recommendations.iloc[i, :].T[['Adventure', 'Animation', 'Children', 'Comedy', 'Fantasy', 'Romance', 'Drama',
+                                                      'Action', 'Crime', 'Thriller', 'Horror', 'Mystery', 'Sci-Fi', 'IMAX', 'Documentary', 'War', 'Musical', 'Western', 'Film-Noir']]
         genres.append(list(df_tmp[df_tmp == 1].index))
 
-    random_recommendations['genres'] = pd.Series(genres)
+    # add genres as column to df
+    random_recommendations = random_recommendations.copy()
+    random_recommendations.loc[:, 'genres'] = pd.Series(genres)
 
     # filter columns
-    random_recommendations = random_recommendations[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
+    random_recommendations = random_recommendations[[
+        'title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres', 'movieId']]
     response = random_recommendations.to_json(orient="index")
-
     return response
 
+
 @app.route("/speech2text", methods=['POST'])
+@cross_origin()
 def speech2text():
     if not check_balance():
         return {"message": "Cost limit reached"}, 403
@@ -180,33 +200,35 @@ def speech2text():
         return {"message": "Forbidden request"}, 403
 
     # tmp store file
-    save_path = str(datetime.now()) +  "temp.wav"
+    save_path = str(datetime.now()) + "temp.wav"
     request.files['audiofile'].save(save_path)
 
     # continue processing...
     audio_config = speechsdk.audio.AudioConfig(filename=save_path)
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+    speech_recognizer = speechsdk.SpeechRecognizer(
+        speech_config=speech_config, audio_config=audio_config)
 
     # get text
     result = speech_recognizer.recognize_once_async().get()
     text = result.text
-    
+
     # delete tmp file
     os.remove(save_path)
 
     # make request to azure albert
-    r = requests.post(getEmbeddingUrl, json={'text':text})
+    r = requests.post(getEmbeddingUrl, json={'text': text})
     data = r.json()
 
     # transform response
     embedding_flattened, shape = data['embedding'], data['shape']
     embedding = torch.tensor(embedding_flattened).reshape(shape)
-    
+
     # calculate cosine similarity between descriptions
-    distances = pairwise_distances(descriptions, embedding.reshape(1,768), metric='cosine')
+    distances = pairwise_distances(
+        descriptions, embedding.reshape(1, 768), metric='cosine')
     indices = np.argsort(distances, axis=0).tolist()
     indices = indices[:10]
-    
+
     # get recommendations
     recommendations = pd.DataFrame(columns=df.columns)
     for index in indices:
@@ -216,7 +238,8 @@ def speech2text():
     genres = []
 
     for i in range(recommendations.shape[0]):
-        df_tmp = recommendations.iloc[i,:].T[['Adventure','Animation','Children','Comedy','Fantasy','Romance','Drama','Action','Crime','Thriller','Horror','Mystery','Sci-Fi','IMAX','Documentary','War','Musical','Western','Film-Noir']]
+        df_tmp = recommendations.iloc[i, :].T[['Adventure', 'Animation', 'Children', 'Comedy', 'Fantasy', 'Romance', 'Drama', 'Action',
+                                               'Crime', 'Thriller', 'Horror', 'Mystery', 'Sci-Fi', 'IMAX', 'Documentary', 'War', 'Musical', 'Western', 'Film-Noir']]
         genres.append(list(df_tmp[df_tmp == 1].index))
 
     genres = pd.Series(genres)
@@ -224,24 +247,26 @@ def speech2text():
     recommendations['genres'] = genres
 
     # filter columns
-    recommendations = recommendations[['title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
+    recommendations = recommendations[['title', 'description', 'poster_path',
+                                       'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres']]
     recommendations = recommendations.to_json(orient="index")
-
     return recommendations
 
+
 @app.route("/testSpeech2Text", methods=['GET'])
+@cross_origin()
 def testSpeech2Text():
     if not check_balance():
         return {"message": "Cost limit reached"}, 403
 
     # send audio to speech2text
     audio_config = speechsdk.audio.AudioConfig(filename="test.wav")
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+    speech_recognizer = speechsdk.SpeechRecognizer(
+        speech_config=speech_config, audio_config=audio_config)
 
     # get text
     result = speech_recognizer.recognize_once_async().get()
     text = result.text
-
     return text
 
 

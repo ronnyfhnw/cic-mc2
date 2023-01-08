@@ -44,7 +44,8 @@ class ContentBasedRecommender:
         self.scaling_function = scaling_function
 
         if scaling_kwargs == None:
-            self.matrices = {'description': description_matrix, 'title': title_matrix, 'info': movie_info_matrix, 'cast': cast_info_matrix}
+            self.matrices = {'description': description_matrix, 'title': title_matrix,
+                             'info': movie_info_matrix, 'cast': cast_info_matrix}
         else:
             self.matrices = {'description': scaling_function(description_matrix, **self.scaling_kwargs), 'title': scaling_function(
                 title_matrix, **self.scaling_kwargs), 'info': scaling_function(movie_info_matrix, **self.scaling_kwargs), 'cast': scaling_function(cast_info_matrix, **self.scaling_kwargs)}
@@ -57,7 +58,8 @@ class ContentBasedRecommender:
                 assert matrix.shape[0] == self.mapping_matrix.shape[
                     0], f"The number of movies in the mapping matrix and the {key} matrix do not match."
                 # assert no NaN values
-                assert np.isnan(matrix).sum() == 0, f"The {key} matrix contains NaN values."
+                assert np.isnan(matrix).sum(
+                ) == 0, f"The {key} matrix contains NaN values."
         print("All matrices have the same length.")
         self.item_matrix = np.hstack(
             [matrix for matrix in self.matrices.values() if matrix is not None])
@@ -78,7 +80,6 @@ class ContentBasedRecommender:
         # remove ratings for movies that are not in the mapping matrix
         ratings_long = ratings_long[ratings_long.movieId.isin(
             self.mapping_matrix.movieId)]
-        print(ratings_long)
         # calculate matrix
         utility_matrix = ratings_long.pivot(
             index='movieId', columns='userId', values='rating')
@@ -181,10 +182,12 @@ class ContentBasedRecommender:
         if scale:
             for userId in ratings.userId.unique():
                 index = list(ratings[ratings.userId == userId].index)
-                ratings.loc[index, 'rating'] = ratings.loc[index, 'rating'] - ratings.loc[index, 'rating'].mean()
-                
+                ratings.loc[index, 'rating'] = ratings.loc[index,
+                                                           'rating'] - ratings.loc[index, 'rating'].mean()
+
                 if self.scaling_kwargs != None:
-                    ratings.loc[index, 'rating'] = self.scaling_function(ratings[ratings.userId == userId]['rating'].values.reshape(-1,1), **self.scaling_kwargs)
+                    ratings.loc[index, 'rating'] = self.scaling_function(
+                        ratings[ratings.userId == userId]['rating'].values.reshape(-1, 1), **self.scaling_kwargs)
 
             # assert no nan values
             assert ratings.isna().sum().sum() == 0
@@ -270,7 +273,8 @@ class ContentBasedRecommender:
                 if movie_id in movie_ids_test:
                     if test_data_user[test_data_user.movieId == movie_id].rating.values[0] >= threshold:
                         tmp_good_recommendations += 1
-                        avg_precision_at_k.append(tmp_good_recommendations / (j + 1))
+                        avg_precision_at_k.append(
+                            tmp_good_recommendations / (j + 1))
                         hit = True
                     else:
                         tmp_false_positives += 1
@@ -308,15 +312,19 @@ class ContentBasedRecommender:
         MAE = np.mean(np.array(MAEs))
         RMSE = np.mean(np.array(RMSEs))
         MSE = np.mean(np.array(MSEs))
-        precision = good_recommendations / (good_recommendations + false_positives)
-        recall = good_recommendations / (good_recommendations + false_negatives)
-        accuracy = (good_recommendations + correct_omissions) / (good_recommendations + false_positives + false_negatives + correct_omissions)
+        precision = good_recommendations / \
+            (good_recommendations + false_positives)
+        recall = good_recommendations / \
+            (good_recommendations + false_negatives)
+        accuracy = (good_recommendations + correct_omissions) / \
+            (good_recommendations + false_positives +
+             false_negatives + correct_omissions)
 
         if precision + recall == 0:
             f1_score = 0
         else:
             f1_score = 2 * (precision * recall) / (precision + recall)
-            
+
         # return good_recommendations, false_positives, false_negatives, correct_omissions
         return {
             'MAE': MAE,
@@ -370,7 +378,7 @@ class ContentBasedRecommender:
 
         return recommendation_title, recommendation_movieIds
 
-    def get_recommendations_for_user(self, ratings_user:pd.DataFrame, n_rec:int=10):
+    def get_recommendations_for_user(self, ratings_user: pd.DataFrame, n_rec: int = 10):
         '''
         Returns a lists of recommended movies and titles based on the ratings a user has given. 
 
@@ -391,11 +399,12 @@ class ContentBasedRecommender:
         recommendation_titles, recommendation_movie_ids, predicted_ratings = self.recommend()
 
         # filter recommendations user has already seen
-        recommendation_titles = recommendation_titles[~np.isin(recommendation_movie_ids, ratings_user.movieId.values)]
-        recommendation_movie_ids = recommendation_movie_ids[~np.isin(recommendation_movie_ids, ratings_user.movieId.values)]
+        recommendation_titles = recommendation_titles[~np.isin(
+            recommendation_movie_ids, ratings_user.movieId.values)]
+        recommendation_movie_ids = recommendation_movie_ids[~np.isin(
+            recommendation_movie_ids, ratings_user.movieId.values)]
 
         return recommendation_titles[:n_rec], recommendation_movie_ids[:n_rec]
-
 
     def get_movie_index(self, title: str = None, movie_id: int = None):
         '''

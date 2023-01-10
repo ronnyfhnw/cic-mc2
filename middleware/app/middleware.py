@@ -200,6 +200,12 @@ def speech2text():
     if request.method != 'POST' or request.form['key'] != MIDDLEWARE_KEY:
         return {"message": "Forbidden request"}, 403
 
+    if 'audiofile' not in request.files.keys():
+        return {"message": "Audiofile missing!"}, 400
+
+    if not request.files['audiofile'].filename.endswith('.wav'):
+        return {"message": "Audiofile must be in .wav format!"}, 400
+
     # tmp store file
     save_path = str(datetime.now()) + "temp.wav"
     request.files['audiofile'].save(save_path)
@@ -273,4 +279,4 @@ def testSpeech2Text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5501, debug=True)
+    app.run(host='0.0.0.0', port=5501)

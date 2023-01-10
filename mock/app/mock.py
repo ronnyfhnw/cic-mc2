@@ -49,4 +49,4 @@ def speech_to_text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5501, debug=True)
+    app.run(host='0.0.0.0', port=5501)

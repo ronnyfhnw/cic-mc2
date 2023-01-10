@@ -105,15 +105,16 @@ def getRecommendationsByIds():
     # get data
     data = request.json
 
-    # if not check_balance():
-    #     return {"message": "Cost limit reached"}, 403
+    if not check_balance():
+        return {"message": "Cost limit reached"}, 403
 
     # check key
     if data['key'] != MIDDLEWARE_KEY:
         return {"message": "Forbidden Request"}, 403
 
     ids = data['ids']
-    assert type(ids) == list
+    if type(ids) != list:
+        return {"message": "Forbidden Request"}, 403
 
     # build ratings
     ratings = pd.DataFrame(columns=['userId', 'movieId', 'rating'])
@@ -149,8 +150,8 @@ def getRecommendationsByIds():
 @cross_origin()
 def getRandomMovies():
 
-    # if not check_balance():
-    #     return {"message": "Cost limit reached"}, 403
+    if not check_balance():
+        return {"message": "Cost limit reached"}, 403
 
     # authentication
     if request.args.get("key") != MIDDLEWARE_KEY:

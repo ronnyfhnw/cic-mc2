@@ -1,0 +1,2 @@
+deployment.yml and loadbalancer.yml not used for deployment. only two open accessible IP-Addresses are granted for a Student-Account on Azure. 
+chmod +x push_to_azure.sh to make file executable

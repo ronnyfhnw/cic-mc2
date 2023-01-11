@@ -78,8 +78,6 @@ RS = ContentBasedRecommender(
 )
 
 # define function for checking balance
-
-
 def check_balance():
     # send request
     response = requests.get(watcher_url, headers={
@@ -89,6 +87,50 @@ def check_balance():
         return True
     else:
         return False
+
+## prepare dataframe and function for drawing samples
+# define top genres
+top_genres = ['Adventure', 'Animation', 'Fantasy', 'Action', 'Sci-Fi', 'Horror', 'Thriller', 'Romance', 'Drama', 'Comedy']
+
+# get most rated movies
+top_movies = df.sort_values(by='vote_count', ascending=False).head(1000)
+
+def draw_samples(top_movies:pd.DataFrame, top_genres:list) -> pd.DataFrame:
+    '''
+    This function draws 15 samples from the top 1000 most-rated movies. Ten samples are drawn from the most popular genres, five more at random. 
+
+    Args:
+    -----
+        top_movies:pd.DataFrame - A pandas dataframe containing the top 1000 most-rated movies
+        top_genres:list - List containing all genres to select from
+
+    Returns:
+    --------
+        random_samples:pd.DataFrame - A pandas dataframe containing fifteen samples
+
+    '''
+    # prepare dataframe for samples
+    random_samples = pd.DataFrame(columns=top_movies.columns)
+
+    # loop over genres to draw samples
+    for genre in top_genres:
+        genre_movies = top_movies[top_movies[genre] == 1]
+        drawn_sample = genre_movies.sample(n=1)
+
+        # check if sample not already in samples
+        while random_samples[random_samples.title == drawn_sample.title.values[0]].shape[0] != 0:
+            drawn_sample = genre_movies.sample(n=1)
+
+        random_samples = pd.concat((random_samples, drawn_sample))
+
+    # add five more random samples
+    random_samples = pd.concat((random_samples, top_movies.sample(n=5)))
+
+    # postprocess titles
+    random_samples.title = random_samples.title.apply(lambda x: "The " + x.rstrip(", The") if x.endswith(", The") else x)
+    random_samples.title = random_samples.title.apply(lambda x: "A " + x.rstrip(", A") if x.endswith(", The") else x)
+
+    return random_samples
 
 ##################################################################################################################################################
 
@@ -145,11 +187,10 @@ def getRecommendationsByIds():
     response = response.to_json(orient="index")
     return response
 
-
 @app.route("/getRandomMovies", methods=['GET'])
 @cross_origin()
 def getRandomMovies():
-
+    # check balance
     if not check_balance():
         return {"message": "Cost limit reached"}, 403
 
@@ -157,20 +198,8 @@ def getRandomMovies():
     if request.args.get("key") != MIDDLEWARE_KEY:
         return {"message": "Forbidden Request"}, 403
 
-    movie_ids = [
-        201773,  # spider man far from home
-        102125,  #  Iron Man 3
-        81834,  #  harry potter
-        111921,  #  the fault in our stars
-        125916,  #  fifty shades of grey
-        136020,  #  spectre
-        160438,  #  jason borne
-        111360,  #  lucy
-        197179,  #  chaos walking
-        175303  #  it
-    ]
-
-    random_recommendations = df[df.movieId.isin(movie_ids)]
+    # draw samples
+    random_recommendations = draw_samples(top_movies=top_movies, top_genres=top_genres)
 
     # turn dummy encoding back
     genres = []
@@ -188,6 +217,7 @@ def getRandomMovies():
     random_recommendations = random_recommendations[[
         'title', 'description', 'poster_path', 'vote_average', 'actor1', 'actor2', 'actor3', 'year', 'genres', 'movieId']]
     response = random_recommendations.to_json(orient="index")
+
     return response
 
 

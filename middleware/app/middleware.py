@@ -78,6 +78,8 @@ RS = ContentBasedRecommender(
 )
 
 # define function for checking balance
+
+
 def check_balance():
     # send request
     response = requests.get(watcher_url, headers={
@@ -88,14 +90,17 @@ def check_balance():
     else:
         return False
 
-## prepare dataframe and function for drawing samples
+
+# prepare dataframe and function for drawing samples
 # define top genres
-top_genres = ['Adventure', 'Animation', 'Fantasy', 'Action', 'Sci-Fi', 'Horror', 'Thriller', 'Romance', 'Drama', 'Comedy']
+top_genres = ['Adventure', 'Animation', 'Fantasy', 'Action',
+              'Sci-Fi', 'Horror', 'Thriller', 'Romance', 'Drama', 'Comedy']
 
 # get most rated movies
 top_movies = df.sort_values(by='vote_count', ascending=False).head(1000)
 
-def draw_samples(top_movies:pd.DataFrame, top_genres:list) -> pd.DataFrame:
+
+def draw_samples(top_movies: pd.DataFrame, top_genres: list) -> pd.DataFrame:
     '''
     This function draws 15 samples from the top 1000 most-rated movies. Ten samples are drawn from the most popular genres, five more at random. 
 
@@ -127,8 +132,10 @@ def draw_samples(top_movies:pd.DataFrame, top_genres:list) -> pd.DataFrame:
     random_samples = pd.concat((random_samples, top_movies.sample(n=5)))
 
     # postprocess titles
-    random_samples.title = random_samples.title.apply(lambda x: "The " + x.rstrip(", The") if x.endswith(", The") else x)
-    random_samples.title = random_samples.title.apply(lambda x: "A " + x.rstrip(", A") if x.endswith(", The") else x)
+    random_samples.title = random_samples.title.apply(
+        lambda x: "The " + x.rstrip(", The") if x.endswith(", The") else x)
+    random_samples.title = random_samples.title.apply(
+        lambda x: "A " + x.rstrip(", A") if x.endswith(", The") else x)
 
     return random_samples
 
@@ -187,6 +194,7 @@ def getRecommendationsByIds():
     response = response.to_json(orient="index")
     return response
 
+
 @app.route("/getRandomMovies", methods=['GET'])
 @cross_origin()
 def getRandomMovies():
@@ -199,7 +207,8 @@ def getRandomMovies():
         return {"message": "Forbidden Request"}, 403
 
     # draw samples
-    random_recommendations = draw_samples(top_movies=top_movies, top_genres=top_genres)
+    random_recommendations = draw_samples(
+        top_movies=top_movies, top_genres=top_genres)
 
     # turn dummy encoding back
     genres = []
@@ -309,4 +318,4 @@ def testSpeech2Text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5501)
+    app.run(host='0.0.0.0', port=5502)

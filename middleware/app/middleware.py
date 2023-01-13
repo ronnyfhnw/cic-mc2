@@ -51,12 +51,13 @@ cast_matrix = np.array(torch.load(
     "data/pca_albert_cast.pt", map_location=torch.device("cpu")))
 # df = pd.read_csv("data/data_tmbd_cleaned.csv", delimiter=";", lineterminator="\n")
 df = pd.read_pickle("data/df.pkl")
+df = df[df.popularity >= list(df.popularity.sort_values(ascending=False))[10000]]
 
 # filter matrices
-# description_matrix = description_matrix[list(df.index),:]
-# descriptions = descriptions[list(df.index),:]
-# title_matrix = title_matrix[list(df.index),:]
-# cast_matrix = cast_matrix[list(df.index),:]
+description_matrix = description_matrix[list(df.index),:]
+descriptions = descriptions[list(df.index),:]
+title_matrix = title_matrix[list(df.index),:]
+cast_matrix = cast_matrix[list(df.index),:]
 
 # build matrices
 movie_info = ContentBasedRecommender.build_movie_info_matrix(df)
@@ -65,7 +66,7 @@ mapping_matrix = ContentBasedRecommender.build_mapping_matrix(df)
 # build input
 matrix_dict = {
     'movie_info_matrix': movie_info,
-    'description_matrix': description_matrix,
+    'description_matrix': descriptions,
     'title_matrix': title_matrix,
     'cast_info_matrix': cast_matrix
 }
@@ -78,8 +79,6 @@ RS = ContentBasedRecommender(
 )
 
 # define function for checking balance
-
-
 def check_balance():
     # send request
     response = requests.get(watcher_url + "?key=" + watcher_auth_token)

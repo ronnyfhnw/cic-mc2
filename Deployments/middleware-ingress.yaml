@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: middleware
-          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/middleware:latest
+          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/middleware:v1
           imagePullPolicy: Always
           readinessProbe:
             httpGet:

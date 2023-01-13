@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configuration
+  namespace: ingress-basic
+  labels:
+    app: moviematch-ingress
+data:
+  enable-underscores-in-headers: "true"

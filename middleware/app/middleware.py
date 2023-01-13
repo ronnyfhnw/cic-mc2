@@ -82,8 +82,7 @@ RS = ContentBasedRecommender(
 
 def check_balance():
     # send request
-    response = requests.get(watcher_url, headers={
-                            'auth_token': watcher_auth_token})
+    response = requests.get(watcher_url + "?key=" + watcher_auth_token)
     # parse response
     if "true" in response.text:
         return True
@@ -202,6 +201,7 @@ def getRandomMovies():
     if not check_balance():
         return {"message": "Cost limit reached"}, 403
 
+    print(request.args)
     # authentication
     if request.args.get("key") != MIDDLEWARE_KEY:
         return {"message": "Forbidden Request"}, 403
@@ -258,11 +258,15 @@ def speech2text():
     result = speech_recognizer.recognize_once_async().get()
     text = result.text
 
+    print(text)
+
     # delete tmp file
     os.remove(save_path)
 
     # make request to azure albert
     r = requests.post(getEmbeddingUrl, json={'text': text})
+
+    print(r)
     data = r.json()
 
     # transform response
@@ -318,4 +322,4 @@ def testSpeech2Text():
 
 # start application
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5502)
+    app.run(host='0.0.0.0', port=5501)

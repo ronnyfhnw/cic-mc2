@@ -1,0 +1,8 @@
+{
+    "auth_token": "asduzgfobvqerwdfipuvasuzdfvb",
+    "admin_auth_token": "asepdf9uzvdsfzisdflzvsdlfiwert",
+    "db_endpoint": "https://fhnw-cic-rsfm.documents.azure.com:443/",
+    "db_key": "M8MN8BLu7BGst2uS0bJoApj4c1fQYIJ2wXN3tjzfexXi8dp7fqYLQ3AZBEuT6UnZ8tY9TZoVnt8gACDbLJXJLg==",
+    "middleware_url": "https://api.moviematch.ch/middleware",
+    "watcher_url": "https://api.moviematch.ch/cic-watcher"
+}

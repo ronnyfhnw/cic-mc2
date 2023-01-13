@@ -25,6 +25,13 @@ spec:
                 name: cic-watcher
                 port:
                   number: 80
+          - path: /cic-logger(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: cic-logger
+                port:
+                  number: 80
           - path: /(.*)
             pathType: Prefix
             backend:

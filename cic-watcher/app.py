@@ -54,11 +54,8 @@ def home():
 
 @app.route('/api/v1/check-balance-allowance', methods=['GET'])
 def api_check_balance_allowance():
-    # check that auth token is in header and is valid
-    if 'auth_token' not in request.headers:
-        return "Error: No auth_token field provided. Please specify an auth_token."
-    if request.headers['auth_token'] != auth_token:
-        return "Error: auth_token is not valid."
+    if request.args.get("key") != auth_token:
+        return {"message": "Forbidden Request"}, 403
 
     # get count of all documents in the service request container
     QUERY = "SELECT COUNT(1)"
@@ -90,11 +87,8 @@ def api_check_balance_allowance():
 
 @app.route('/api/v1/get-configuration', methods=['GET'])
 def api_get_config():
-    # check that auth token is in header and is valid
-    if 'auth_token' not in request.headers:
-        return "Error: No auth_token field provided. Please specify an auth_token."
-    if request.headers['auth_token'] != admin_auth_token:
-        return "Error: auth_token is not valid."
+    if request.args.get("key") != admin_auth_token:
+        return {"message": "Forbidden Request"}, 403
 
     azure_cs_config = load_cs_config()
     return jsonify(azure_cs_config)
@@ -102,11 +96,8 @@ def api_get_config():
 
 @app.route('/api/v1/get-current-used-balance', methods=['GET'])
 def api_get_current_balance():
-    # check that auth token is in header and is valid
-    if 'auth_token' not in request.headers:
-        return "Error: No auth_token field provided. Please specify an auth_token."
-    if request.headers['auth_token'] != admin_auth_token:
-        return "Error: auth_token is not valid."
+    if request.args.get("key") != admin_auth_token:
+        return {"message": "Forbidden Request"}, 403
 
     # get count of all documents in the service request container
     QUERY = "SELECT COUNT(1)"
@@ -126,11 +117,8 @@ def api_get_current_balance():
 
 @ app.route("/api/v1/update-total-balance",  methods=['POST'])
 def api_update_total():
-    # check that auth token is in header and is valid
-    if 'auth_token' not in request.headers:
-        return "Error: No auth_token field provided. Please specify an auth_token."
-    if request.headers['auth_token'] != admin_auth_token:
-        return "Error: auth_token is not valid."
+    if request.args.get("key") != admin_auth_token:
+        return {"message": "Forbidden Request"}, 403
 
     # check that request body is valid
     if 'total_balance' not in request.json:
@@ -146,11 +134,8 @@ def api_update_total():
 
 @ app.route("/api/v1/update-price-per-request",  methods=['POST'])
 def api_update_price_per_req():
-    # check that auth token is in header and is valid
-    if 'auth_token' not in request.headers:
-        return "Error: No auth_token field provided. Please specify an auth_token."
-    if request.headers['auth_token'] != admin_auth_token:
-        return "Error: auth_token is not valid."
+    if request.args.get("key") != admin_auth_token:
+        return {"message": "Forbidden Request"}, 403
 
     # check that request body is valid
     if 'price_per_request' not in request.json:

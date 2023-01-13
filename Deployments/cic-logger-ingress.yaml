@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cic-watcher
+  name: cic-logger
 spec:
   selector:
     matchLabels:
-      app: cic-watcher
+      app: cic-logger
   replicas: 1
   template:
     metadata:
       labels:
-        app: cic-watcher
+        app: cic-logger
     spec:
       containers:
-        - name: cic-watcher
-          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/cic-watcher:1
+        - name: cic-logger
+          image: d0fc41ec9cbe4bdebd01d7b30df6209b.azurecr.io/cic-logger:latest
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: cic-watcher
+  name: cic-logger
 spec:
   type: ClusterIP
   ports:
@@ -43,4 +43,4 @@ spec:
       port: 80
       targetPort: 5000
   selector:
-    app: cic-watcher
+    app: cic-logger
